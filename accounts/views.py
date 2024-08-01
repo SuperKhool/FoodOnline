@@ -3,11 +3,38 @@ from django.shortcuts import render , HttpResponse , redirect
 from vendor.forms import VendorForm
 from .forms import UserForm
 from .models import User, UserProfile
-from django.contrib import messages
+from django.contrib import messages , auth
+from .utils import DetectUser
+from django.contrib.auth.decorators import login_required , user_passes_test
+from django.core.exceptions import PermissionDenied
 # Create your views here.
 
+
+
+#Restrict Vendor User To Access Customer Dashboard
+
+def check_vendor_user(user):
+    if user.role == 1:
+        return True
+    else:
+        raise PermissionDenied
+
+#Restrict Customer  User To Access Vendor Dashboard
+
+def check_customer_user(user):
+    if user.role == 2:
+        return True
+    else:
+        raise PermissionDenied
+    
+
+
+
 def registeruser(request):
-    if request.method == "POST":
+    if request.user.is_authenticated:
+        messages.warning(request,'You are All ready Logged In!')
+        return redirect('myAccount')
+    elif request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
             # This Way We can save Or say HASH password
@@ -29,7 +56,8 @@ def registeruser(request):
             user.save()
             messages.success(request," User Account Register Sucessfully ")
             
-            return redirect('registeruser')
+            
+            return redirect('login')
         else:
             print("Invalid Form")
             print(form.errors)
@@ -79,3 +107,48 @@ def registerVendor(request):
     }
     
     return render(request,'accounts/registerVendor.html',context)
+
+
+def login(request):
+    if request.user.is_authenticated:
+        messages.warning(request,'You are All ready Logged In!')
+        return redirect('dashboard')
+    elif request.method == "POST":
+        email = request.POST['email']
+        password = request.POST['password']
+        user = auth.authenticate(email=email,password=password)
+        if user is not None:
+            auth.login(request,user)
+            messages.success(request,"Logged In Sucessfully! ")
+            return redirect('myAccount')
+        else:
+            messages.error(request,"Something Gose Wrong! ")
+            return redirect('login')
+
+    return render(request,'accounts/login.html')
+
+
+def logout(request):
+    auth.logout(request)
+    messages.info(request,'Logged Out Sucessfully!')
+    return  redirect('login')
+
+@login_required(login_url='login')
+def myAccount(request):
+    user = request.user
+    redirectUrl = DetectUser(user)
+    return redirect(redirectUrl)
+
+
+@login_required(login_url='login')
+@user_passes_test(check_customer_user)
+def custDashboard(request):
+    return render(request,'accounts/custDashboard.html')
+
+
+@login_required(login_url='login')
+@user_passes_test(check_vendor_user)
+def vendorDashboard(request):
+    return render(request,'accounts/vendorDashboard.html')
+
+
