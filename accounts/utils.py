@@ -69,3 +69,11 @@ def check_valid_user(user,uidb64):
         
     return user,uid
     
+    
+    
+def send_notification(mail_subject,mail_template,context):
+    from_email = settings.DEFAULT_FROM_EMAIL
+    message = render_to_string(mail_template,context,)
+    to_mail = context['user'].email
+    mail = EmailMessage(mail_subject,message,from_email,to=[to_mail])
+    mail.send()

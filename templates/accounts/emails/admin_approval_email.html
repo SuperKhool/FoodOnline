@@ -1,0 +1,12 @@
+{% autoescape off %}
+hi {{user.username}}
+
+{% if is_approved %}
+Congratulation! Your Restaurant has approved in our marketplace.Now You Can Upload Your Food-Menu!
+
+
+{% else %}
+Sorry! Your Restaurant is not approved! Please Contact with Support Team -: < -------@mail.com-- > For More information..
+{% endif %}
+
+{% endautoescape %}

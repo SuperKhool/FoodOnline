@@ -1,6 +1,7 @@
 from django.shortcuts import render , HttpResponse , redirect
 
 from vendor.forms import VendorForm
+from vendor.models import Vendor
 from .forms import UserForm
 from .models import User, UserProfile
 from django.contrib import messages , auth
@@ -112,13 +113,11 @@ def registerVendor(request):
     else:
          form = UserForm()
          v_form = VendorForm()
-            
-
+               
     context = {
         'form': form,
         'v_form': v_form,
-    }
-    
+    }   
     return render(request,'accounts/registerVendor.html',context)
 
 
@@ -197,6 +196,7 @@ def custDashboard(request):
 @user_passes_test(check_vendor_user)
 def vendorDashboard(request):
     return render(request,'accounts/vendorDashboard.html')
+
 
 
 
