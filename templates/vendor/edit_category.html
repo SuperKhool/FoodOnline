@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Main Section Start -->
+<div class="main-section">
+    <!-- Load Cover Image Here!-->
+     {% include "includes/cover.html" %}
+     
+    <div class="page-section account-header buyer-logged-in">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                    <!---Load SideBar Here!  -->
+                    {% include 'includes/v_sidebar.html' %}
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                    <div class="user-dashboard loader-holder">
+                        <h5 class="text-uppercase">Edit Your Category  Here </h5>
+                        <div class="user-holder">
+                            <hr>
+                            <button class="btn btn-secondary" onclick="history.back()"><i class="fa fa-angle-left" aria-hidden="true" ></i>&nbsp; Back </button><br><br>
+                            <h6><span class="text-uppercase text-info"> You are Editing: {{category}} </span></h6>
+
+                            <form action="{% url 'edit_category' category.pk %}" method="POST">
+                                {% csrf_token %}
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="field-holder">
+                                        <label>Category *</label>
+                                        {{form.category_name}}
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="field-holder">
+                                        <label>Description *</label>
+                                        {{form.description}}
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary"><i class="fa fa-check"></i>&nbsp;Update</button>
+                            </form>
+
+   
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Main Section End -->
+{% include 'includes/alerts.html' %}
+{% endblock %}
