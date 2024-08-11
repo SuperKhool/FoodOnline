@@ -126,12 +126,12 @@ def registerVendor(request):
 #Active The User By is_active status set to  True
 def activate(request ,uidb64,token):
      
-    user = check_valid_user(request.user,uidb64) #{I made A Helper Fucntion For It : Utils }
-    # try:
-    #     uid =urlsafe_base64_decode(uidb64).decode() #Decodeing The User Primery Key! COMES FROM django.utils.http
-    #     user = User._default_manager.get(pk=uid) #after Decoding PK Getting USER From The User Model 
-    # except(TypeError,ValueError,OverflowError,User.DoesNotExist): #Checking If User Doseno't Exist What Happen!
-    #     user = None
+    # user = check_valid_user(request.user,uidb64) #{I made A Helper Fucntion For It : Utils }
+    try:
+        uid =urlsafe_base64_decode(uidb64).decode() #Decodeing The User Primery Key! COMES FROM django.utils.http
+        user = User._default_manager.get(pk=uid) #after Decoding PK Getting USER From The User Model 
+    except(TypeError,ValueError,OverflowError,User.DoesNotExist): #Checking If User Doseno't Exist What Happen!
+        user = None
         
         
     if user is not None and default_token_generator.check_token(user,token): #Checking USER AND Also The TOken By Token Genaretor Cmoes form django.contrib.Auth.token

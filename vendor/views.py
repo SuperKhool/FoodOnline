@@ -142,6 +142,8 @@ def delete_category(request,pk=None):
 #FOOD ITEM CRUD Start FROM HERE!
 
 #ADD FOOD
+@login_required
+@user_passes_test(check_vendor_user)
 def add_food(request):
     if request.method == "POST":
         form = FoodForm(request.POST,request.FILES)
@@ -157,8 +159,46 @@ def add_food(request):
         else:
             print('form.errors')
     else:
-        form = FoodForm()
+        form = FoodForm() 
+        #Modifying form so that it's show only The loged in user catgory list not the all filed like admin
+        form.fields['category'].queryset = Category.objects.filter(vendor=get_vendor(request))
     context = {
         'form':form
     }
     return render(request,'vendor/add_food.html',context)
+
+
+#EDIT FOOD 
+@login_required
+@user_passes_test(check_vendor_user)
+def edit_food(request,pk=None):
+    food = get_object_or_404(FoodItem,pk=pk)
+    if request.method == "POST":
+        form = FoodForm(request.POST,request.FILES,instance=food)
+        if form.is_valid():
+            vendor = get_vendor(request)
+            food_title = form.cleaned_data['food_title']
+            edit_food = form.save(commit=False)
+            edit_food.vendor = vendor
+            edit_food.slug = slugify(food_title)
+            form.save()
+            messages.success(request,'Food Item Edited Sucessfully !')
+            return redirect('fooditem_by_category',edit_food.category.id)
+        else:
+            print('form.errors')
+    form = FoodForm(instance=food)
+    form.fields['category'].queryset = Category.objects.filter(vendor=get_vendor(request))
+    context = {
+        'form':form,
+        'food':food,
+    }
+    return render(request,'vendor/edit_food.html',context)
+
+#Delete Food 
+@login_required
+@user_passes_test(check_vendor_user)
+def delete_food(request,pk=None):
+    food = get_object_or_404(FoodItem,pk=pk)
+    food.delete()
+    messages.success(request,"Food Item Deleted Sucessfully !")
+    return redirect(fooditem_by_category,food.category.pk)
